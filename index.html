@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <!-- FONTE ABAIXO -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200&display=swap" rel="stylesheet">
+    <!-- FONTE ACIMA -->
+    <title>Comes and Bebes Dael</title>
+    <script>
+        function calcularAgua() {
+            // Obter valores do formulário
+            let peso = document.getElementById('peso').value;
+            let idade = document.getElementById('idade').value;
+            let altura = document.getElementById('altura').value;
+            let horaAcorda = document.getElementById('horario-acorda').value;
+            let horaDorme = document.getElementById('horario-dorme').value;
+
+            // Verificar se todos os campos estão preenchidos
+            if (peso === "" || idade === "" || altura === "" || horaAcorda === "" || horaDorme === "") {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            // Converter valores para números
+            peso = parseFloat(peso);
+            idade = parseInt(idade);
+            altura = parseFloat(altura);
+
+            // Fórmula simples para calcular a necessidade de água com base no peso
+            let aguaPorDiaMl = peso * 35;
+
+            // Ajustes baseados na idade
+            if (idade > 55) {
+                aguaPorDiaMl *= 0.9; // Reduz 10% se a pessoa tiver mais de 55 anos
+            } else if (idade < 30) {
+                aguaPorDiaMl *= 1.1; // Aumenta 10% se a pessoa tiver menos de 30 anos
+            }
+
+            // Ajustes baseados na altura (opcional, pode ser omitido se preferir)
+            if (altura > 175) {
+                aguaPorDiaMl += 200; // Adiciona 200 ml se a altura for maior que 1,75 m
+            }
+
+            // Calcula a quantidade de água por copo (dividido em 8 copos diários)
+            let aguaPorCopo = aguaPorDiaMl / 8;
+
+            // Calcula a quantidade total em litros
+            let litrosPorDia = aguaPorDiaMl / 1000;
+
+            // Calcula a distribuição dos copos entre o horário de acordar e o horário de dormir
+            let horarios = gerarHorarios(horaAcorda, horaDorme, aguaPorCopo);
+
+            // Exibir o resultado na página
+            document.getElementById('resultado').innerHTML = `
+                Você deve beber aproximadamente <strong>${litrosPorDia.toFixed(2)} litros</strong> de água por dia.<br>
+                Isso equivale a aproximadamente <strong>${aguaPorCopo.toFixed(0)} ml</strong> por copo, considerando 8 copos diários.
+            `;
+
+            document.getElementById('horarios').innerHTML = `
+                <h2>Horários sugeridos para beber água:</h2>
+                <ul>${horarios.map(horario => `<li>${horario}</li>`).join('')}</ul>
+            `;
+        }
+
+        function gerarHorarios(horaAcorda, horaDorme, aguaPorCopo) {
+            // Converter horários para objetos Date
+            let [horaAcordaH, horaAcordaM] = horaAcorda.split(':').map(Number);
+            let [horaDormeH, horaDormeM] = horaDorme.split(':').map(Number);
+
+            // Criar objetos Date para hora de acordar e hora de dormir
+            let acorda = new Date();
+            acorda.setHours(horaAcordaH, horaAcordaM, 0, 0);
+            let dorme = new Date();
+            dorme.setHours(horaDormeH, horaDormeM, 0, 0);
+
+            // Calcular intervalo em horas
+            let diffHoras = (dorme - acorda) / (1000 * 60 * 60);
+            let intervalo = diffHoras / 8;
+
+            // Gerar horários
+            const horarios = [];
+            for (let i = 0; i < 8; i++) {
+                let hora = new Date(acorda.getTime() + i * intervalo * 60 * 60 * 1000);
+                let horas = hora.getHours();
+                let minutos = hora.getMinutes();
+                let periodo = horas >= 12 ? "PM" : "AM";
+
+                if (horas > 12) horas -= 12;
+                if (horas === 0) horas = 12;
+
+                horarios.push(`${horas}:${minutos < 10 ? '0' : ''}${minutos} ${periodo} - ${aguaPorCopo.toFixed(0)} ml`);
+            }
+
+            return horarios;
+        }
+    </script>
+</head>
+
+<body>
+    <div class="MAIN">
+        <div class="MAIN-cabecalho-01">
+            <div class="cabecalho01-TOPO">
+                <div class="Container-cbclh01-TOPO-calc">
+                    <div>
+                        <button class="cabecalho01-TOPO-calcular" type="button" onclick="calcularAgua()"> <h1>CALCULAR</h1> </button>
+                    </div>
+                </div>
+                <div class="cabecalho01-TOPO-dados">
+                    <h2>PESO (KG)</h2>
+                    <h2>IDADE</h2>
+                    <h2>ALTURA (CM)</h2>
+                </div>
+                <div class="Linha-Horizontal"></div>
+            </div>
+            <div class="cabecalho01-BAIXO">
+                <div class="cabecalho01-BAIXO-dados">
+                    <div>
+                        <label for="peso"></label>
+                        <input class="dados-01" type="number" id="peso" name="peso">
+                    </div>
+                    <div>
+                        <label for="idade"></label>
+                        <input class="dados-02" type="number" id="idade" name="idade">
+                    </div>
+                    <div>
+                        <label for="altura"></label>
+                        <input class="dados-03" type="number" id="altura" name="altura">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="MAIN-cabecalho-02">
+            <div class="MAIN-cabecalho02-TOPO">
+                <h2>QUANDO ACORDA</h2>
+                <h2>QUANDO DORME</h2>
+            </div>
+            <div class="MAIN-cabecalho02-BAIXO">
+                <div>
+                    <label for="horario-acorda"></label>
+                    <input class="cabecalho02-BAIXO-acorda" type="time" id="horario-acorda" name="horario-acorda">
+                </div>
+                <div>
+                    <label for="horario-dorme"></label>
+                    <input class="cabecalho02-BAIXO-dorme" type="time" id="horario-dorme" name="horario-dorme">
+                </div>
+            </div>
+        </div>
+        <div id="resultado"></div>
+        <div id="horarios"></div>
+    </div>
+</body>
+
+</html>
